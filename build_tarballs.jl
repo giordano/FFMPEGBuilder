@@ -9,7 +9,6 @@ version = v"4.1.3"
 sources = [
     "https://ffmpeg.org/releases/ffmpeg-4.1.3.tar.bz2" =>
     "29a679685bd7bc29158110f367edf67b31b451f2176f9d79d0f342b9e22d6a2a",
-
 ]
 
 # Bash recipe for building across all platforms
@@ -19,6 +18,8 @@ cd $WORKSPACE/srcdir
 cd ffmpeg-4.1/
 sed -i 's/-lflite"/-lflite -lasound"/' configure
 apk add coreutils
+apk add nasm
+export AS=nasm
 ./configure            \
   --prefix=$prefix     \
   --enable-gpl         \
@@ -43,7 +44,28 @@ make install
 
 # These are the platforms we will build for by default, unless further
 # platforms are passed in on the command line
-platforms = supported_platforms()
+platforms = [
+    # Windows
+    Windows(:i686),
+    Windows(:x86_64),
+
+    # linux
+    Linux(:i686, :glibc),
+    Linux(:x86_64, :glibc),
+    Linux(:aarch64, :glibc),
+    Linux(:armv7l, :glibc),
+    Linux(:powerpc64le, :glibc),
+
+    # musl
+    Linux(:i686, :musl),
+    Linux(:x86_64, :musl),
+    Linux(:aarch64, :musl),
+    Linux(:armv7l, :musl),
+
+    # The BSD's
+    FreeBSD(:x86_64),
+    MacOS(:x86_64),
+]
 
 # The products that we will ensure are always built
 products(prefix) = [
@@ -63,15 +85,14 @@ products(prefix) = [
 dependencies = [
     "https://github.com/JuliaIO/LibassBuilder/releases/download/v0.14.0/build_libass.v0.14.0.jl",
     "https://github.com/SimonDanisch/FDKBuilder/releases/download/0.1.6/build_libfdk.v0.1.6.jl",
-    "https://github.com/SimonDanisch/NASMBuilder/releases/download/2.13.3/build_nasm.v2.13.3.jl",
     "https://github.com/SimonDanisch/FribidiBuilder/releases/download/0.14.0/build_fribidi.v0.14.0.jl",
     "https://github.com/JuliaGraphics/FreeTypeBuilder/releases/download/v2.9.0-0/build.jl",
     "https://github.com/SimonDanisch/LAMEBuilder/releases/download/3.100.0/build_liblame.v3.100.0.jl",
     "https://github.com/JuliaIO/LibVorbisBuilder/releases/download/v1.3.6/build_libvorbis.v1.3.6.jl",
     "https://github.com/staticfloat/OggBuilder/releases/download/v1.3.3-7/build_Ogg.v1.3.3.jl",
-    "https://github.com/jpsamaroo/LibVPXBuilder/releases/download/v5.0.0/build_LibVPX.v5.0.0.jl",
-    "https://github.com/jpsamaroo/YasmBuilder/releases/download/v1.3.0-pre/build_YasmBuilder.v1.3.0.jl",
-    "https://github.com/jpsamaroo/x264Builder/releases/download/v2018.2.12-noyasm/build_x264Builder.v2018.2.12-pre-noyasm.jl",
+    "https://github.com/JuliaIO/LibVPXBuilder/releases/download/v5.0.0/build_LibVPX.v5.0.0.jl",
+    "https://github.com/JuliaIO/YasmBuilder/releases/download/v1.3.0-pre/build_YasmBuilder.v1.3.0.jl",
+    "https://github.com/JuliaIO/x264Builder/releases/download/v2018.2.12-noyasm/build_x264Builder.v2018.2.12-pre-noyasm.jl",
     #"https://github.com/jpsamaroo/x265Builder/releases/download/v2.8-noyasm/build_x265Builder.v2.8.0.jl",
 ]
 
