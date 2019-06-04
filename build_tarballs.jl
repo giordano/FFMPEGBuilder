@@ -79,6 +79,10 @@ pkg-config --list-all
   --enable-muxers      \
   --enable-demuxers    \
   --enable-parsers     \
+  --enable-pic         \
+  --enable-postproc    \
+  --enable-avfilter    \
+  --enable-pthreads    \
   --extra-cflags="-I${prefix}/include" \
   --extra-ldflags="-L${prefix}/lib"
 make -j${nproc}
